@@ -24,7 +24,8 @@ export default function CodeEditor() {
         existingHighlight.remove();
       }
       
-      window.dispatchEvent(new CustomEvent('interpreterReset'));
+      // Use codeReset event that only resets player position, not map
+      window.dispatchEvent(new CustomEvent('codeReset'));
     };
 
     // Listen for execution state changes
@@ -79,7 +80,7 @@ print('Hello World!')"
             style={{ 
               position: 'relative', 
               zIndex: 1,
-              height: '300px', // Made 3x taller
+              height: '300px',
               minHeight: '300px',
               resize: 'vertical',
               // Disable spell check and autocorrect
@@ -99,20 +100,21 @@ print('Hello World!')"
               top: '12px',
               left: '12px',
               right: '12px',
-              height: '20px',
-              background: 'rgba(251, 191, 36, 0.8)', // More opaque yellow
-              color: '#000000', // Black text for better contrast
+              height: '18px',
+              background: 'rgba(255, 235, 59, 0.9)',
+              color: '#000000',
               borderRadius: '3px',
               display: 'none',
-              zIndex: 2, // Above the textarea
+              zIndex: 2,
               pointerEvents: 'none',
               transition: 'top 0.2s ease',
               fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-              fontSize: '14px',
-              lineHeight: '20px',
+              fontSize: '11px',
+              lineHeight: '18px',
               padding: '0 4px',
               whiteSpace: 'pre',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              fontWeight: 'bold'
             }}
           />
         </div>
@@ -127,10 +129,18 @@ print('Hello World!')"
           >
             {isRunning ? '⏹ Stop' : '▶ Run'}
           </button>
-          <button className="control-btn secondary" onClick={handleRestart}>
+          <button 
+            className="control-btn secondary" 
+            onClick={handleRestart}
+            title="Clear code and console, reset player to start position"
+          >
             🔄 Restart
           </button>
-          <button className="control-btn secondary" onClick={handleClear}>
+          <button 
+            className="control-btn secondary" 
+            onClick={handleClear}
+            title="Clear console only"
+          >
             🗑 Clear Console
           </button>
         </div>

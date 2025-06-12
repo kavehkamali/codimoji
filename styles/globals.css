@@ -85,7 +85,8 @@ html, body {
   flex: 1;
   overflow: hidden;
   width: 100%;
-  max-width: 100vw;
+  /* REMOVED max-width constraint */
+  min-height: 0;
 }
 
 /* Panels */
@@ -96,6 +97,7 @@ html, body {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  min-height: 0;
 }
 
 .panel:last-child {
@@ -103,7 +105,7 @@ html, body {
 }
 
 .panel-header {
-  padding: 12px 16px;
+  padding: 8px 12px; /* Reduced padding */
   background: var(--bg-tertiary);
   border-bottom: 1px solid var(--border-color);
   font-size: 10px; /* Reduced from 12px */
@@ -114,29 +116,31 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .panel-content {
   flex: 1;
   overflow: auto;
-  padding: 16px;
+  padding: 12px; /* Reduced from 16px */
+  min-height: 0;
 }
 
 /* Command Panel */
 .command-panel {
-  width: 200px;
-  min-width: 180px;
+  width: 180px; /* Reduced from 200px */
+  min-width: 160px; /* Reduced from 180px */
   flex-shrink: 0;
 }
 
 .command-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px; /* Reduced from 8px */
 }
 
 .command-item {
-  padding: 8px 12px;
+  padding: 6px 10px; /* Reduced from 8px 12px */
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
@@ -153,26 +157,26 @@ html, body {
 
 /* Editor Panel */
 .editor-panel {
-  width: 350px;
-  min-width: 250px;
+  width: 320px; /* Reduced from 350px */
+  min-width: 280px; /* Reduced from 250px */
   flex-shrink: 0;
 }
 
 .code-editor {
   width: 100%;
-  height: 300px; /* Increased height as requested before */
+  height: 300px; /* Keep this height as requested */
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 10px; /* Reduced from 12px */
   color: var(--text-primary);
   font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
   font-size: 11px; /* Reduced from 13px */
-  line-height: 16px; /* Reduced proportionally */
+  line-height: 18px; /* Reduced proportionally */
   resize: none;
   outline: none;
   
-  /* Completely disable spell check - multiple approaches */
+  /* Remove spell check and red underlines */
   spellcheck: false !important;
   -webkit-spellcheck: false !important;
   -moz-spellcheck: false !important;
@@ -211,59 +215,35 @@ html, body {
   border-color: var(--accent-color);
 }
 
-/* Remove any potential spell check styling */
-.code-editor::placeholder {
-  text-decoration: none;
-}
-
-.code-editor::-webkit-input-placeholder {
-  text-decoration: none;
-}
-
-.code-editor::-moz-placeholder {
-  text-decoration: none;
-}
-
-.code-editor:-ms-input-placeholder {
-  text-decoration: none;
-}
-
-.code-editor * {
-  text-decoration: none;
-  -webkit-text-decoration: none;
-  -moz-text-decoration: none;
-  -ms-text-decoration: none;
-}
-
-/* Line highlight for code execution */
+/* Enhanced line highlight */
 #lineHighlight {
-  background: rgba(255, 235, 59, 0.9);
-  color: #000000;
-  font-weight: bold;
-  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
-  font-size: 11px;
-  line-height: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 193, 7, 0.8);
-  z-index: 2;
-  pointer-events: none;
-  white-space: pre;
-  overflow: hidden;
-  transition: top 0.2s ease;
-  position: absolute;
-  display: none;
+  background: rgba(255, 235, 59, 0.9) !important;
+  color: #000000 !important;
+  font-weight: bold !important;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace !important;
+  font-size: 11px !important;
+  line-height: 18px !important;
+  height: 18px !important;
+  padding: 0 4px !important;
+  border-radius: 3px !important;
+  border: 1px solid rgba(255, 193, 7, 0.8) !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+  white-space: pre !important;
+  overflow: hidden !important;
+  transition: top 0.2s ease !important;
+  position: absolute !important;
+  display: none !important;
 }
 
 .editor-controls {
   display: flex;
-  gap: 8px;
-  margin: 12px 0;
+  gap: 6px; /* Reduced from 8px */
+  margin: 10px 0; /* Reduced from 12px 0 */
 }
 
 .control-btn {
-  padding: 8px 16px;
+  padding: 6px 12px; /* Reduced from 8px 16px */
   background: var(--success-color);
   color: white;
   border: none;
@@ -292,7 +272,7 @@ html, body {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 10px; /* Reduced from 12px */
   font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
   font-size: 10px; /* Reduced from 12px */
   color: var(--text-primary);
@@ -300,10 +280,11 @@ html, body {
   white-space: pre-wrap;
 }
 
-/* Game Panel */
+/* Game Panel - FLEXIBLE SIZING */
 .game-panel {
-  flex: 1;
-  min-width: 300px;
+  flex: 1; /* Takes all remaining space */
+  min-width: 250px; /* Reduced minimum */
+  /* REMOVED max-width completely */
 }
 
 .game-canvas {
@@ -316,8 +297,8 @@ html, body {
 
 /* Map Panel */
 .map-panel {
-  width: 280px;
-  min-width: 220px;
+  width: 220px; /* Reduced from 280px */
+  min-width: 180px; /* Reduced from 220px */
   flex-shrink: 0;
 }
 
@@ -328,16 +309,16 @@ html, body {
 
 .map-thumbnails {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* Reduced from 80px */
+  gap: 8px; /* Reduced from 12px */
 }
 
 .map-thumbnail {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
+  gap: 6px; /* Reduced from 8px */
+  padding: 8px; /* Reduced from 12px */
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
@@ -357,7 +338,7 @@ html, body {
 
 .map-input {
   width: 100%;
-  padding: 4px 8px;
+  padding: 3px 6px; /* Reduced from 4px 8px */
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -372,7 +353,7 @@ html, body {
 
 /* Splitter */
 .splitter {
-  width: 4px;
+  width: 3px; /* Reduced from 4px */
   background: var(--splitter-color);
   cursor: col-resize;
   flex-shrink: 0;
@@ -389,8 +370,8 @@ html, body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 3px;
-  height: 20px;
+  width: 2px; /* Reduced from 3px */
+  height: 16px; /* Reduced from 20px */
   background: var(--text-secondary);
   border-radius: 2px;
   transform: translate(-50%, -50%);
@@ -426,7 +407,7 @@ html, body {
   text-align: center;
   color: var(--text-primary);
   font-weight: 600;
-  font-size: 18px; /* Reduced slightly */
+  font-size: 16px; /* Reduced slightly */
 }
 
 .form-group {
@@ -468,8 +449,8 @@ html, body {
 
 /* Scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px; /* Reduced from 8px */
+  height: 6px; /* Reduced from 8px */
 }
 
 ::-webkit-scrollbar-track {
@@ -485,59 +466,63 @@ html, body {
   background: var(--splitter-hover);
 }
 
-/* Responsive */
+/* IMPROVED RESPONSIVE DESIGN */
 @media (max-width: 1400px) {
-  .command-panel {
-    width: 180px;
-    min-width: 160px;
-  }
-  
-  .editor-panel {
-    width: 320px;
-    min-width: 250px;
-  }
-  
-  .map-panel {
-    width: 260px;
-    min-width: 220px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .command-panel {
-    width: 170px;
-    min-width: 150px;
-  }
-  
-  .editor-panel {
-    width: 300px;
-    min-width: 220px;
-  }
-  
-  .map-panel {
-    width: 240px;
-    min-width: 200px;
-  }
-}
-
-@media (max-width: 1000px) {
   .command-panel {
     width: 160px;
     min-width: 140px;
   }
   
   .editor-panel {
-    width: 280px;
-    min-width: 200px;
+    width: 300px;
+    min-width: 260px;
   }
   
   .map-panel {
-    width: 220px;
-    min-width: 180px;
+    width: 200px;
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .command-panel {
+    width: 150px;
+    min-width: 130px;
+  }
+  
+  .editor-panel {
+    width: 280px;
+    min-width: 240px;
+  }
+  
+  .map-panel {
+    width: 180px;
+    min-width: 150px;
   }
   
   .panel-content {
-    padding: 12px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .command-panel {
+    width: 140px;
+    min-width: 120px;
+  }
+  
+  .editor-panel {
+    width: 260px;
+    min-width: 220px;
+  }
+  
+  .map-panel {
+    width: 160px;
+    min-width: 140px;
+  }
+  
+  .panel-content {
+    padding: 8px;
   }
   
   html, body {
@@ -547,24 +532,24 @@ html, body {
 
 @media (max-width: 800px) {
   .command-panel {
-    width: 140px;
+    width: 130px;
   }
   
   .editor-panel {
-    width: 250px;
+    width: 240px;
   }
   
   .map-panel {
-    width: 200px;
+    width: 150px;
   }
   
   .panel-content {
-    padding: 8px;
+    padding: 6px;
   }
   
   .map-thumbnails {
-    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 6px;
   }
   
   html, body {

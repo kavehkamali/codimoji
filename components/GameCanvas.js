@@ -51,20 +51,41 @@ export default function GameCanvas() {
     }
   };
 
+  // Calculate optimal canvas size to always fit the container
+  const calculateCanvasSize = () => {
+    if (!containerRef.current) return 300;
+    
+    const container = containerRef.current;
+    const containerRect = container.getBoundingClientRect();
+    
+    // Get available space with minimal margins
+    const availableWidth = containerRect.width - 16; // Reduced margin from 32 to 16
+    const availableHeight = containerRect.height - 40; // Reduced margin from 80 to 40
+    
+    // Always use the smaller dimension to ensure it fits, but NO MAXIMUM LIMIT
+    const size = Math.min(availableWidth, availableHeight);
+    
+    // Ensure minimum size but allow UNLIMITED maximum
+    const finalSize = Math.max(150, size); // Reduced minimum from 200 to 150
+    
+    console.log(`Container: ${containerRect.width}x${containerRect.height}, Canvas: ${finalSize}x${finalSize}`);
+    return finalSize;
+  };
+
   // Drawing function with images and layered rendering
   const drawGameWithImages = (canvas, map, gameImages, currentPlayerPos) => {
     if (!canvas || !map) return;
     
     const ctx = canvas.getContext('2d');
-    const size = Math.min(canvas.width, canvas.height);
-    const tileSize = size / 15; // 15x15 grid
+    const size = canvas.width;
+    const tileSize = size / 12; // 12x12 grid
     
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // LAYER 1: Draw grass background on ALL tiles
-    for (let y = 0; y < 15; y++) {
-      for (let x = 0; x < 15; x++) {
+    for (let y = 0; y < 12; y++) {
+      for (let x = 0; x < 12; x++) {
         if (gameImages.grass) {
           ctx.drawImage(gameImages.grass, x * tileSize, y * tileSize, tileSize, tileSize);
         }
@@ -72,8 +93,8 @@ export default function GameCanvas() {
     }
     
     // LAYER 2: Draw overlays (walls, water, goals) on top of grass
-    for (let y = 0; y < 15; y++) {
-      for (let x = 0; x < 15; x++) {
+    for (let y = 0; y < 12; y++) {
+      for (let x = 0; x < 12; x++) {
         const tile = map[y]?.[x] || 0;
         let overlayImage = null;
         
@@ -100,7 +121,7 @@ export default function GameCanvas() {
     const playerX = currentPlayerPos.x * tileSize;
     const playerY = currentPlayerPos.y * tileSize;
     
-    if (gameImages.character) {
+    if (gameImages.character && gameImages.character.complete) {
       ctx.drawImage(gameImages.character, playerX + 2, playerY + 2, tileSize - 4, tileSize - 4);
     } else {
       // Fallback player
@@ -114,8 +135,8 @@ export default function GameCanvas() {
     if (!canvas || !map) return;
     
     const ctx = canvas.getContext('2d');
-    const size = Math.min(canvas.width, canvas.height);
-    const tileSize = size / 15;
+    const size = canvas.width;
+    const tileSize = size / 12; // 12x12 grid
     
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -129,8 +150,8 @@ export default function GameCanvas() {
     };
     
     // Draw tiles
-    for (let y = 0; y < 15; y++) {
-      for (let x = 0; x < 15; x++) {
+    for (let y = 0; y < 12; y++) {
+      for (let x = 0; x < 12; x++) {
         const tile = map[y]?.[x] || 0;
         ctx.fillStyle = colors[tile];
         ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
@@ -189,6 +210,31 @@ export default function GameCanvas() {
     }
   }, [gameCanvas, currentMap, images, usesFallback]);
 
+  // Resize canvas to fit container - ALWAYS RESIZE
+  const resizeCanvas = (canvas) => {
+    if (!canvas || !containerRef.current) return;
+    
+    const size = calculateCanvasSize();
+    
+    // ALWAYS resize, no matter how big
+    canvas.width = size;
+    canvas.height = size;
+    canvas.style.width = `${size}px`;
+    canvas.style.height = `${size}px`;
+    
+    console.log(`Canvas resized to: ${size}x${size}`);
+    
+    // Redraw after resize
+    if (currentMap) {
+      const currentPlayerPos = window.playerPos || { x: 0, y: 0 };
+      if (usesFallback || Object.keys(images).length === 0) {
+        drawGameFallback(canvas, currentMap, currentPlayerPos);
+      } else {
+        drawGameWithImages(canvas, currentMap, images, currentPlayerPos);
+      }
+    }
+  };
+
   // Create and set up canvas
   useEffect(() => {
     if (!mounted) return;
@@ -214,10 +260,10 @@ export default function GameCanvas() {
         canvas.style.borderRadius = '6px';
         canvas.style.background = '#0f0f0f';
         canvas.style.display = 'block';
+        canvas.style.margin = '0 auto';
 
-        // Size the canvas
-        const rect = container.getBoundingClientRect();
-        const size = Math.min(rect.width - 24, rect.height - 80, 400);
+        // Size the canvas to fit container
+        const size = calculateCanvasSize();
         canvas.width = size;
         canvas.height = size;
         canvas.style.width = `${size}px`;
@@ -254,30 +300,7 @@ export default function GameCanvas() {
         console.log('Game setup complete');
         setIsLoading(false);
 
-        // Set up resize handler
-        const handleResize = () => {
-          const rect = container.getBoundingClientRect();
-          const size = Math.min(rect.width - 24, rect.height - 80, 400);
-          
-          canvas.width = size;
-          canvas.height = size;
-          canvas.style.width = `${size}px`;
-          canvas.style.height = `${size}px`;
-          
-          if (currentMap) {
-            const currentPlayerPos = window.playerPos || { x: 0, y: 0 };
-            if (usesFallback || Object.keys(images).length === 0) {
-              drawGameFallback(canvas, currentMap, currentPlayerPos);
-            } else {
-              drawGameWithImages(canvas, currentMap, images, currentPlayerPos);
-            }
-          }
-        };
-
-        window.addEventListener('resize', handleResize);
-
         return () => {
-          window.removeEventListener('resize', handleResize);
           if (canvas.parentNode) {
             canvas.parentNode.removeChild(canvas);
           }
@@ -293,6 +316,33 @@ export default function GameCanvas() {
     return () => clearTimeout(timer);
   }, [mounted]);
 
+  // Set up resize observer to detect ANY size changes (including splitter movement)
+  useEffect(() => {
+    if (!gameCanvas || !containerRef.current) return;
+
+    // Use ResizeObserver for more reliable resize detection
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        console.log('Container size changed, resizing canvas...');
+        resizeCanvas(gameCanvas);
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    // Also listen to window resize as backup
+    const handleWindowResize = () => {
+      setTimeout(() => resizeCanvas(gameCanvas), 100);
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleWindowResize);
+    };
+  }, [gameCanvas]);
+
   // Update drawing when map, images, or player position changes
   useEffect(() => {
     if (gameCanvas && currentMap) {
@@ -304,17 +354,41 @@ export default function GameCanvas() {
     }
   }, [gameCanvas, currentMap, images, usesFallback, playerPos]);
 
-  // Handle interpreter reset
+  // Handle code reset (player position reset, keep map)
   useEffect(() => {
     if (!mounted) return;
 
-    const handleReset = () => {
-      console.log('Handling game reset...');
+    const handleCodeReset = () => {
+      console.log('Handling code reset (keeping current map)...');
+      // Just reset player position, keep the current map
+      setPlayerPos({ x: 0, y: 0 });
+      setPlayerPosition({ x: 0, y: 0 });
+      setTargetPos({ x: 0, y: 0 });
+      
+      if (gameCanvas && currentMap) {
+        if (usesFallback || Object.keys(images).length === 0) {
+          drawGameFallback(gameCanvas, currentMap, { x: 0, y: 0 });
+        } else {
+          drawGameWithImages(gameCanvas, currentMap, images, { x: 0, y: 0 });
+        }
+      }
+    };
+
+    window.addEventListener('codeReset', handleCodeReset);
+    return () => window.removeEventListener('codeReset', handleCodeReset);
+  }, [mounted, gameCanvas, currentMap, images, usesFallback]);
+
+  // Handle interpreter reset (reset map too)
+  useEffect(() => {
+    if (!mounted) return;
+
+    const handleInterpreterReset = () => {
+      console.log('Handling interpreter reset (generating new map)...');
       generateNewMap();
     };
 
-    window.addEventListener('interpreterReset', handleReset);
-    return () => window.removeEventListener('interpreterReset', handleReset);
+    window.addEventListener('interpreterReset', handleInterpreterReset);
+    return () => window.removeEventListener('interpreterReset', handleInterpreterReset);
   }, [mounted, gameCanvas, images, usesFallback]);
 
   // Don't render on server
@@ -325,7 +399,7 @@ export default function GameCanvas() {
   return (
     <div className="panel game-panel">
       <div className="panel-header">
-        <span>Game World</span>
+        <span>Game World (12x12)</span>
         {!isLoading && gameCanvas && (
           <button 
             onClick={generateNewMap}
@@ -353,8 +427,10 @@ export default function GameCanvas() {
           alignItems: 'center', 
           justifyContent: 'center', 
           flexDirection: 'column',
-          minHeight: '300px',
-          position: 'relative'
+          minHeight: '200px', // Reduced from 300px
+          position: 'relative',
+          height: '100%',
+          padding: '8px' // Reduced padding
         }}
       >
         {isLoading ? (
